@@ -1,3 +1,8 @@
 mnist_train.csv
 mnist_test.csv
 u_net.pt
+
+__pycache__/
+.DS_Store
+*.log
+*.png

@@ -126,6 +126,7 @@ class ResidualBolck(nn.Module):
         self.time_emb= nn.Linear(time_channels, out_channels)
         self.time_act= Swish()
         self.dropout= nn.Dropout(dropout)
+
     def forward(self, x: torch.Tensor, t:torch.Tensor):
         # norm>> act>> conv
         h= self.conv1(self.act1(self.norm1(x)))
@@ -181,6 +182,7 @@ class DownBlock(nn.Module):
             self.attn= AttentionBlock(out_channels)
         else:
             self.attn= nn.Identity()
+
     def forward(self, x: torch.Tensor, t: torch.Tensor):
         x= self.res(x, t)
         x= self.attn(x)
@@ -194,6 +196,7 @@ class TimeEmbedding(nn.Module):
         self.lin1= nn.Linear(self.n_channels// 4, self.n_channels)
         self.act= Swish()
         self.lin2= nn.Linear(self.n_channels, self.n_channels)
+
     def forward(self, t: torch.Tensor):
         half_dim= self.n_channels// 8
         emb= math.log(10000)/ (half_dim- 1)
@@ -210,6 +213,7 @@ class Upsample(nn.Module):
         super().__init__()
         # 反卷积，
         self.conv= nn.ConvTranspose2d(n_channels, n_channels, (4, 4), (2, 2), (1, 1))
+
     def forward(self, x: torch.Tensor, t: torch.Tensor):
         _= t
         return self.conv(x)
@@ -218,6 +222,7 @@ class Downsample(nn.Module):
     def __init__(self, n_channels):
         super().__init__()
         self.conv= nn.Conv2d(n_channels, n_channels, (3, 3), (2, 2), (1, 1))
+    
     def forward(self, x:torch.tensor, t:torch.tensor):
         _= t
         return self.conv(x)
@@ -228,6 +233,7 @@ class MiddleBlock(nn.Module):
         self.res1= ResidualBolck(n_channels, n_channels, time_channels)
         self.attn= AttentionBlock(n_channels)
         self.res2= ResidualBolck(n_channels, n_channels, time_channels)
+
     def forward(self, x:torch.tensor, t:torch.tensor):
         x= self.res1(x, t)
         x= self.attn(x)
@@ -243,6 +249,7 @@ class UpBlock(nn.Module):
             self.attn= AttentionBlock(out_channels)
         else:
             self.attn= nn.Identity()
+
     def forward(self, x:torch.Tensor, t:torch.Tensor):
         x= self.res(x, t)
         x= self.attn(x)
